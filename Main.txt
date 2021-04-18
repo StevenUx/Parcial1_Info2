@@ -1,0 +1,41 @@
+int gnd[6]={8,9,10,11,12,13};
+int S[1][6]={ 
+ B01111110,
+ B01100000,
+ B01111110,
+ B01111110,
+ B00000110,
+ B01111110
+};
+
+
+
+void setup(){
+  pinMode(8 , OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(10 , OUTPUT);
+  pinMode(11 , OUTPUT);
+  pinMode(12 , OUTPUT);
+  pinMode(13 , OUTPUT);
+  for(int i=0;i<6;i++)
+  digitalWrite(gnd[i], HIGH);
+  DDRD = B11111111;
+  
+  
+}
+
+void det(int m[1][6]){
+  for(int j=0; j<25; j++){ //cantidad de arreglos 
+    for(int i=0;i<6;i++){ //tamaño vertical 
+    PORTD = m[0][i];
+    digitalWrite(gnd[i], LOW);
+    delay(5);
+    digitalWrite(gnd[i], HIGH);
+  }
+    delay(0);
+  }
+}
+void loop(){
+  det(S);
+
+}
