@@ -1,54 +1,96 @@
-int gnd[8]={5,6,7,11,12,13,8,9};
-int S[1][8]={
-  
-};
+int Dibujo[8][8];
+int b;
+
+
+void rellenar(){
+  for(int i=0;i<8;i++){
+      for(int j=0;j<8;j++){
+          if(i==j){
+          Dibujo[i][j]=1;
+            }
+        }
+    }
+}
 
 void setup(){
-  pinMode(8 , OUTPUT);
-  pinMode(9, OUTPUT);
-  for(int i=0;i<8;i++)
-  digitalWrite(gnd[i], HIGH);
-  DDRD = B11111111; 
+  for(int i=8;i<=13;i++){
+    pinMode(i,OUTPUT);
+  }
+  //Pin13 ClockFilas
+  //Pin12 LatchFilas
+  //Pin11 DataFilas
+  //Pin10 ClockColumnas
+  //Pin9  LatchColumnas
+  //Pin8  DataColumnas
+  Serial.begin(9600);
+  
 }
 
-void det(int m[1][8]){
-  for(int j=0; j<25; j++){ //cantidad de arreglos 
-    for(int i=0;i<8;i++){ //tamaño vertical 
-    PORTD = m[0][i];
-    digitalWrite(gnd[i], LOW);
-    delay(0);
-    digitalWrite(gnd[i], HIGH);
-  }
-    delay(0);
-  }
+
+
+void datain(){
+    for(int i=0;i<8;i++){
+        Serial.println("Secuencia: ");
+        b=Serial.parseInt();
+        for(int j=0;j<8;j++){
+
+                Dibujo[i][j]=b%10;
+                b=b/10;
+
+              }
+          }
+      }
+
+
+void impc(int a){//Columnas
+  if(a==1){
+      
+      digitalWrite(8,HIGH);
+      digitalWrite(10,HIGH);
+      digitalWrite(10,LOW);
+
+    }
+  else
+  {
+     digitalWrite(8,LOW);
+     digitalWrite(10,HIGH);
+     digitalWrite(10,LOW);
+    }
+}
+
+void selfila(byte a){ 
+  byte h=B00000001;
+  for(int i=0;i<8;i++){
+    if(h==a){
+     digitalWrite(11,LOW);
+    }
+    else{
+   	 digitalWrite(11,HIGH);
+    }
+  h<<=1;
+   digitalWrite(13,HIGH);
+   digitalWrite(13,LOW);
+  
+    }
+  digitalWrite(12,HIGH);
+  digitalWrite(12,LOW);
+  
 }
 
 void loop(){
-  det(S);
-  }
-/*
-void verificacion(){
-  pinMode(8 , OUTPUT);
-  pinMode(9, OUTPUT);
-  for(int i=0;i<8;i++)
-  digitalWrite(gnd[i], HIGH);
-  DDRD = B11111111; 
-}
-
-void det(int m[1][8]){
-  for(int j=0; j<25; j++){ //cantidad de arreglos 
-    for(int i=0;i<=8;i++){ //tamaño vertical 
-    PORTD = m[0][i];
-    digitalWrite(gnd[i], LOW);
-    delay(0);
-    digitalWrite(gnd[i], HIGH);
-  }
-    delay(0);
+  byte f=B10000000;
+	//datain();
+  rellenar();
+  for(int x=0;x<8;x++){
+    selfila(f);
+    for(int y=8;y>=0;y--){
+      impc(Dibujo[x][y]);
+    }
+    digitalWrite(9,HIGH);
+    digitalWrite(9,LOW);
+    delay(200);
+    f>>= 1;
+    
   }
 }
-
-void loop(){
-  det(S);
-  }
-  */
 
