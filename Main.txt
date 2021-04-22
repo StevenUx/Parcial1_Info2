@@ -1,96 +1,69 @@
-int Dibujo[8][8];
-int b;
+const int data = 4;
+const int latch = 5;
+const int clock = 6;
+int filas[8]={127,191,223,239,247,251,253,254};//Estas son las filas a barrer.
+int col[8]={};//Aqui es donde va el dibujo dividido en filas, por comodidad lo convertimos a decimal.
+bool w;
 
 
-void rellenar(){
-  for(int i=0;i<8;i++){
-      for(int j=0;j<8;j++){
-          if(i==j){
-          Dibujo[i][j]=1;
-            }
-        }
-    }
+
+bool GetBit( byte N, int pos)//Esta funcion me saca el bit en la posicion deseada.
+   {                          
+       int b = N >> pos ;       
+       b = b & 1 ;              
+       return b ;
+   }
+           
+           
+void setup()
+{
+ 
+  pinMode(data, OUTPUT);
+  pinMode(latch, OUTPUT);
+  pinMode(clock, OUTPUT); 
+ 
 }
 
-void setup(){
-  for(int i=8;i<=13;i++){
-    pinMode(i,OUTPUT);
-  }
-  //Pin13 ClockFilas
-  //Pin12 LatchFilas
-  //Pin11 DataFilas
-  //Pin10 ClockColumnas
-  //Pin9  LatchColumnas
-  //Pin8  DataColumnas
-  Serial.begin(9600);
-  
-}
 
 
 
-void datain(){
-    for(int i=0;i<8;i++){
-        Serial.println("Secuencia: ");
-        b=Serial.parseInt();
-        for(int j=0;j<8;j++){
 
-                Dibujo[i][j]=b%10;
-                b=b/10;
-
-              }
-          }
-      }
-
-
-void impc(int a){//Columnas
-  if(a==1){
-      
-      digitalWrite(8,HIGH);
-      digitalWrite(10,HIGH);
-      digitalWrite(10,LOW);
-
-    }
-  else
-  {
-     digitalWrite(8,LOW);
-     digitalWrite(10,HIGH);
-     digitalWrite(10,LOW);
-    }
-}
-
-void selfila(byte a){ 
-  byte h=B00000001;
-  for(int i=0;i<8;i++){
-    if(h==a){
-     digitalWrite(11,LOW);
-    }
-    else{
-   	 digitalWrite(11,HIGH);
-    }
-  h<<=1;
-   digitalWrite(13,HIGH);
-   digitalWrite(13,LOW);
-  
-    }
-  digitalWrite(12,HIGH);
-  digitalWrite(12,LOW);
-  
-}
-
-void loop(){
-  byte f=B10000000;
-	//datain();
-  rellenar();
+void loop()
+{
   for(int x=0;x<8;x++){
-    selfila(f);
-    for(int y=8;y>=0;y--){
-      impc(Dibujo[x][y]);
+    for(int i=0;i<8;i++){ //Este for escribe los 8 bits de cada columna.
+    	w=GetBit(col[x],i);
+          if(w==true){
+          digitalWrite(data,HIGH);
+          digitalWrite(clock,HIGH);
+          digitalWrite(clock,LOW);
+                     }
+      else{
+          digitalWrite(data,LOW);
+          digitalWrite(clock,HIGH);
+          digitalWrite(clock,LOW);
+          }
     }
-    digitalWrite(9,HIGH);
-    digitalWrite(9,LOW);
-    delay(200);
-    f>>= 1;
-    
+    for(int j=0;j<8;j++){ //Este for escribe los 8 bits de la fila y empuja a los de arriba hasta su posicion final
+      w=GetBit(filas[x],j);
+      if(w==true){
+          digitalWrite(data,HIGH);
+          digitalWrite(clock,HIGH);
+          digitalWrite(clock,LOW);
+                     }
+      else{
+          digitalWrite(data,LOW);
+          digitalWrite(clock,HIGH);
+          digitalWrite(clock,LOW);
+          }
+      
+    }
+    //Cuando ya todos los bits estan en su posicion activo la salida:
+    digitalWrite(latch,HIGH);
+    digitalWrite(latch,LOW);
+    delay(5);// Para ver como se dibuja lentamente.
   }
+    
+    
+  
 }
-
