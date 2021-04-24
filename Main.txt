@@ -1,18 +1,13 @@
 const int data = 4;
 const int latch = 5;
 const int clock = 6;
+
+
 int filas[8]={127,191,223,239,247,251,253,254};//Estas son las filas a barrer.
 bool w;
-int columnas[8];
-int sel;
-int n;
-int nFilas;
-int c=0;
-int *f;
+int columnas[8],sel,n,nFilas=0,c=0,*f,**p_matriz,nPat;
 
-int **p_matriz;
-
-int *pedirdatos(){
+void *pedirdatos(){
   Serial.println("Cuantos dibujos desea ingresar? :");
   while(Serial.available()==0){
       }
@@ -26,40 +21,34 @@ int *pedirdatos(){
   }
   //Recoger los datos en la matriz
   for(c=0;c<nFilas;c++){
-    Serial.println("Dibujo ");
-    Serial.print(c);
+    Serial.print("Dibujo ");
+    Serial.println(c+1);
     
     for(int j=0;j<8;j++){
       Serial.print("Secuencia ");
-      Serial.println(j);
+      Serial.println(j+1);
       while(Serial.available()==0){
       }
       n=Serial.parseInt();
       *(*(p_matriz+c)+j)= n;
     }
-    int *p;
+    
+  }
+  int *p;
     p=new int[8]; //Me crea un arreglo para ingresarlo a la funcion imagen
       for(int k=0;k<8;k++){
       *(p+k)=*(*(p_matriz+c)+k);
     }
-    return p;
+     f = p;
     delete[] p;// Elimina el arreglo de la memoria porque ya está en los chips
-    
-  }
-  
+    imagen(f);
 }
       
- 
-
-
 void verificar(){
   for(int i=0;i<8;i++){
     	columnas[i]=255;
   }
 }
-
- 
-
 
 bool GetBit( byte n, int pos)//Esta funcion me saca el bit en la posicion deseada.
    {                          
@@ -102,16 +91,29 @@ void imagen(int col[]){ //Esta funcion recibe un arreglo con las posiciones y lo
     //Cuando ya todos los bits estan en su posicion activo la salida:
     digitalWrite(latch,HIGH);
     digitalWrite(latch,LOW);
-    delay(1);// Para ver como se dibuja lentamente.
   }
+  
+  
+}
+
+int *patrones(int a){
+    //Me crea un arreglo para ingresarlo a la funcion imagen
+    int *p;
+    p=new int[8];
+  	for(int k=0;k<8;k++){
+      *(p+k)=*(*(p_matriz+a)+k);
+    }
+    return p;
+    
+    delete [] p;
+    
   
   
 }
 
 
 
-           
-           
+          
 void setup()
 {
  
@@ -120,21 +122,33 @@ void setup()
   pinMode(clock, OUTPUT);
   Serial.begin(9600);
   
-  
-                 
  
 }
 
 
 
 void loop(){//Imprime el menú
+ 
   Serial.println("1. Verificar");
   Serial.println("2. Dibujar");
-  Serial.println("3. Secuencia de patrones");
+  Serial.println("3. mostrar patrones");
+  
+  
   
   while(Serial.available() == 0){ //Mientras no se ingrese nada por el serial ejecuta la funcion de imagen.
-    imagen(f);
+    
+    for(int i=0;i<nPat;i++){
+        f=patrones(i);
+
+    	for(int k=0;k<20;k++){ 
+    		imagen(f);
+     
+    }
+    	delay(100);
+   
+    }
   }
+  
   
   sel=Serial.parseInt();
   switch(sel){
@@ -146,13 +160,16 @@ void loop(){//Imprime el menú
     
     case 2:
     
-    f=pedirdatos(); //Aqui se ingresa el dibujo, dentro de la funcion se elije cuantos dibujos desea ingresar
+    pedirdatos(); //Aqui se ingresa el dibujo, dentro de la funcion se elije cuantos dibujos desea ingresar
     break;
     
+    case 3:
+    Serial.println("Cuantos patrones desea ver: ");
+    nPat=Serial.parseInt();
+    break;
+    
+      
   }
-   //case 3: Aun falta la funcion para imprimir em secuencia los dibujos void publik(int delay, int numero de dibujos)
-  //Una opcion seria hacer un ciclo for que recorra la fila 1 de l matriz, guarde eso en un arreglo dinamico, luego retorna ese arreglo
-  //para que la funcion imagen lo lea, lo muestre, espere el tiempo delay establecido por el usuario y que luego pase a la fila 2 y repita ese proceso.
+    
 }
 
-   
